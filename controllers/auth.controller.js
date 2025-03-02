@@ -1,6 +1,7 @@
 import UserModel from "../models/User.model.js";
 import HttpStatus from "../constants/httpStatus.js";
 import { issueJwt } from "../utils/jwt.js";
+import { console } from "inspector";
 
 const register = async (req, res, next) => {
   const { password, ...userdata } = req.body;
@@ -113,3 +114,24 @@ const login = async (req, res, next) => {
     next(err);
   }
 };
+
+const logout = async (req, res, next) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    sameSite: "Strict",
+    secure: true,
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "Strict",
+    secure: true,
+  });
+
+  res.status(HttpStatus.OK).json({
+    message: "user logout successfully",
+    success: true,
+  });
+};
+
+
+export {register,login,logout};
