@@ -1,5 +1,6 @@
 import { hash } from "bcrypt";
 import mongoose from "mongoose";
+import { applyPasswordValidatingandHashing } from "../utils/hashUtils.js";
 
 const { Schema, model } = mongoose;
 
@@ -25,7 +26,7 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  saly: {
+  salt: {
     type: String,
   },
   address: {
@@ -53,6 +54,27 @@ const UserSchema = new Schema({
   },
 
 });
+
+function isStrongPassword(password) {
+  const strongPasswordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return strongPasswordRegex.test(password);
+}
+
+UserSchema.pre("save", function (next) {
+  if (this.isModified("hash") && !isStrongPassword(this.hash)) {
+    return next(
+      new Error(
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character"
+      )
+    );
+  }
+  next();
+});
+
+
+applyPasswordValidatingandHashing(UserSchema);
+
 
 const UserModel = model("User", UserSchema);
 

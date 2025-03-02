@@ -1,7 +1,9 @@
 import UserModel from "../models/User.model.js";
 import HttpStatus from "../constants/httpStatus.js";
-import { issueJwt } from "../utils/jwt.js";
-import { console } from "inspector";
+import { issueJwt } from "../utils/jwtUtils.js";
+// import { console } from "inspector";
+
+import {checkPassword}   from "../utils/hashUtils.js";
 
 const register = async (req, res, next) => {
   const { password, ...userdata } = req.body;
@@ -29,7 +31,7 @@ const register = async (req, res, next) => {
   try {
     const newuser = await UserModel.create({ ...userdata, hash: password });
 
-    const { access_token, refresh_token } = issueJwt(
+    const { access_token, refresh_Token } = issueJwt(
       newuser._id,
       newuser.email,
       newuser.username
@@ -76,7 +78,7 @@ const login = async (req, res, next) => {
 
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: "email or password invalid",
+        message: "user not found",
         success: false,
       });
     }
@@ -84,7 +86,7 @@ const login = async (req, res, next) => {
 
     if (!isMatch) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
-        message: "email or password invalid",
+        message: "password incorect",
         success: false,
       });
     }

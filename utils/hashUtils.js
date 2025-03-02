@@ -20,12 +20,12 @@ const applyPasswordValidatingandHashing = (schema) => {
  } )}
 
 
-const checkPassword = ([password,hash,salt])=>{
-    const validatedHashed = crypto
+ const checkPassword = (password, salt, hash) => {
+  const validatedHashed = crypto
     .pbkdf2Sync(password, salt, 10000, 64, "RSA-SHA1")
     .toString("hex");
 
   return hash === validatedHashed;
-}
+};
 
 export {hashPassword,applyPasswordValidatingandHashing,checkPassword};
